@@ -1,11 +1,16 @@
 {
     "name": "jackbayliss/laravel-config-outdated",
-    "description": "An Artisan command to find out when your published config files are out of date.",
+    "description": "Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.",
     "keywords": [
         "jackbayliss",
         "laravel",
         "config",
         "configuration",
+        "outdated",
+        "upgrade",
+        "artisan",
+        "vendor-publish",
+        "config-publish",
         "laravel-config-outdated"
     ],
     "homepage": "https://github.com/jackbayliss/laravel-config-outdated",
@@ -18,7 +23,7 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
         "illuminate/console": "^13.0",
         "illuminate/filesystem": "^13.0",
         "illuminate/support": "^13.0"

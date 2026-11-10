@@ -1,5 +1,5 @@
 #  Laravel Config Outdated
-An Artisan command to find out when your published config files are out of date.
+Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jackbayliss/laravel-config-outdated.svg?style=flat-square)](https://packagist.org/packages/jackbayliss/laravel-config-outdated)
 [![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml?query=branch%3Amain)
@@ -9,7 +9,7 @@ Once you've published a package's config file, you never hear about new options 
 
 ## Requirements
 
-Laravel 13+.
+PHP 8.3+ and Laravel 13+.
 
 ## Installation
 
