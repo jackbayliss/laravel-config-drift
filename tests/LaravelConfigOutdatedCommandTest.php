@@ -55,6 +55,23 @@ class LaravelConfigOutdatedCommandTest extends TestCase
         $this->artisan('config:outdated', ['--fail' => true])->assertExitCode(Command::SUCCESS);
     }
 
+    public function test_it_outputs_json()
+    {
+        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis', 'legacy' => true]);
+        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis'], 'other');
+
+        $root = str_replace('\\', '/', $this->root);
+
+        $this->artisan('config:outdated', ['--json' => true])
+            ->expectsOutput(json_encode([[
+                'file' => $root.'/config/acme.php',
+                'source' => $root.'/vendor/acme/config/acme.php',
+                'missing' => ['acme.prefix'],
+                'unknown' => ['acme.legacy'],
+            ]]))
+            ->assertExitCode(Command::SUCCESS);
+    }
+
     public function test_it_ignores_published_files_outside_of_the_config_directory()
     {
         $this->publishes([

@@ -20,6 +20,7 @@ class LaravelConfigOutdatedCommand extends Command
      * @var string
      */
     protected $signature = 'config:outdated
+                            {--json : Output the outdated configuration files as JSON}
                             {--fail : Exit with a non-zero code if any configuration file is outdated}';
 
     /**
@@ -46,7 +47,9 @@ class LaravelConfigOutdatedCommand extends Command
             ->filter(fn ($result) => $result['missing'] || $result['unknown'])
             ->values();
 
-        if ($results->isEmpty()) {
+        if ($this->option('json')) {
+            $this->output->writeln($outdated->toJson());
+        } elseif ($results->isEmpty()) {
             $this->components->info('No published configuration files were found.');
         } elseif ($outdated->isEmpty()) {
             $this->components->info('All published configuration files are up to date.');
@@ -73,7 +76,9 @@ class LaravelConfigOutdatedCommand extends Command
             $original = $files->getRequire($source);
             $current = $files->getRequire($published);
         } catch (Throwable $e) {
-            $this->components->warn("Unable to load the [{$name}] configuration file: {$e->getMessage()}");
+            if (! $this->option('json')) {
+                $this->components->warn("Unable to load the [{$name}] configuration file: {$e->getMessage()}");
+            }
 
             return null;
         }
