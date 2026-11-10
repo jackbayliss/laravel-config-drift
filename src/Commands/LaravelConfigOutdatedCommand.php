@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use JackBayliss\LaravelConfigOutdated\ConfigurationComparator;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Finder\Finder;
 use Throwable;
 
 #[AsCommand(name: 'config:outdated')]
@@ -122,6 +123,9 @@ class LaravelConfigOutdatedCommand extends Command
         }
 
         return (new Collection(ServiceProvider::pathsToPublish()))
+            ->flatMap(fn ($to, $from) => is_dir($from)
+                ? $this->filesWithin($from, $to)
+                : [$from => $to])
             ->filter(fn ($to, $from) => Str::endsWith($to, '.php')
                 && is_file($from)
                 && is_file($to)
@@ -132,6 +136,22 @@ class LaravelConfigOutdatedCommand extends Command
                     'published' => $to,
                 ],
             ]);
+    }
+
+    /**
+     * Get the files within the given published directory.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return array
+     */
+    protected function filesWithin($from, $to)
+    {
+        return (new Collection(Finder::create()->files()->in($from)))
+            ->mapWithKeys(fn ($file) => [
+                $file->getPathname() => $to.DIRECTORY_SEPARATOR.$file->getRelativePathname(),
+            ])
+            ->all();
     }
 
     /**

@@ -107,6 +107,20 @@ class LaravelConfigOutdatedCommandTest extends TestCase
             ->assertExitCode(Command::SUCCESS);
     }
 
+    public function test_it_checks_published_configuration_directories()
+    {
+        $this->writeConfig('vendor/acme/config/acme/queue.php', ['driver' => 'redis', 'prefix' => 'acme']);
+        $this->writeConfig('config/acme/queue.php', ['driver' => 'redis']);
+
+        $this->publishes([
+            $this->root.'/vendor/acme/config' => $this->app->configPath(),
+        ]);
+
+        $this->artisan('config:outdated')
+            ->expectsOutputToContain('acme.queue.prefix')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
     protected function publishPackageConfig(array $original, array $published, $name = 'acme')
     {
         $this->publishes([
