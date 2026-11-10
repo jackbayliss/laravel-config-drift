@@ -2,8 +2,8 @@
 An Artisan command to find out when your published config files are out of date.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jackbayliss/laravel-config-outdated.svg?style=flat-square)](https://packagist.org/packages/jackbayliss/laravel-config-outdated)
-[![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml?query=branch%3Amain)
+[![GitHub Code Style Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/fix-php-code-style-issues.yml?query=branch%3Amain)
 
 Once you've published a package's config file, you never hear about new options the package adds or old ones it drops. This compares your published config files against the originals and tells you which keys are missing or no longer used. It never changes your files.
 
