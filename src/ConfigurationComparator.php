@@ -14,9 +14,22 @@ class ConfigurationComparator
     {
         $missing = $unknown = [];
 
-        foreach (array_keys($original) as $key) {
-            if (is_string($key) && ! array_key_exists($key, $published)) {
+        foreach ($original as $key => $value) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            if (! array_key_exists($key, $published)) {
                 $missing[] = $this->key($prefix, $key);
+
+                continue;
+            }
+
+            if ($this->shouldCompare($value, $published[$key])) {
+                $result = $this->compare($value, $published[$key], $this->key($prefix, $key));
+
+                array_push($missing, ...$result['missing']);
+                array_push($unknown, ...$result['unknown']);
             }
         }
 
@@ -27,6 +40,21 @@ class ConfigurationComparator
         }
 
         return compact('missing', 'unknown');
+    }
+
+    /**
+     * Determine if the given values should be compared.
+     *
+     * @param  mixed  $original
+     * @param  mixed  $published
+     * @return bool
+     */
+    protected function shouldCompare($original, $published)
+    {
+        return is_array($original)
+            && is_array($published)
+            && $original !== []
+            && ! array_is_list($original);
     }
 
     /**

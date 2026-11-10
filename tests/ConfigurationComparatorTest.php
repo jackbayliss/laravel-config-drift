@@ -44,6 +44,67 @@ class ConfigurationComparatorTest extends BaseTestCase
         $this->assertSame(['legacy'], $result['unknown']);
     }
 
+    public function test_nested_keys_are_reported_using_dot_notation()
+    {
+        $result = $this->compare(
+            ['retry' => ['times' => 3, 'backoff' => [1, 5, 10]]],
+            ['retry' => ['times' => 3, 'sleep' => 100]],
+        );
+
+        $this->assertSame(['retry.backoff'], $result['missing']);
+        $this->assertSame(['retry.sleep'], $result['unknown']);
+    }
+
+    public function test_a_missing_group_is_reported_once()
+    {
+        $result = $this->compare(
+            ['driver' => 'redis', 'retry' => ['times' => 3, 'sleep' => 100]],
+            ['driver' => 'redis'],
+        );
+
+        $this->assertSame(['retry'], $result['missing']);
+    }
+
+    public function test_lists_are_treated_as_values()
+    {
+        $result = $this->compare(
+            ['except' => ['telescope', 'horizon']],
+            ['except' => ['pulse']],
+        );
+
+        $this->assertSame(['missing' => [], 'unknown' => []], $result);
+    }
+
+    public function test_empty_arrays_are_treated_as_values()
+    {
+        $result = $this->compare(
+            ['headers' => []],
+            ['headers' => ['X-Foo' => 'bar']],
+        );
+
+        $this->assertSame(['missing' => [], 'unknown' => []], $result);
+    }
+
+    public function test_integer_keys_are_ignored()
+    {
+        $result = $this->compare(
+            ['middleware' => ['web', 'throttle' => 'api']],
+            ['middleware' => ['web', 'auth', 'throttle' => 'api']],
+        );
+
+        $this->assertSame(['missing' => [], 'unknown' => []], $result);
+    }
+
+    public function test_arrays_replaced_with_scalars_are_not_compared()
+    {
+        $result = $this->compare(
+            ['retry' => ['times' => 3]],
+            ['retry' => false],
+        );
+
+        $this->assertSame(['missing' => [], 'unknown' => []], $result);
+    }
+
     protected function compare(array $original, array $published)
     {
         return (new ConfigurationComparator)->compare($original, $published);
