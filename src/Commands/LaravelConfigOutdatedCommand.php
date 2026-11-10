@@ -20,6 +20,7 @@ class LaravelConfigOutdatedCommand extends Command
      * @var string
      */
     protected $signature = 'config:outdated
+                            {file? : Only check the given configuration file}
                             {--json : Output the outdated configuration files as JSON}
                             {--fail : Exit with a non-zero code if any configuration file is outdated}';
 
@@ -38,6 +39,18 @@ class LaravelConfigOutdatedCommand extends Command
     public function handle(Filesystem $files, ConfigurationComparator $comparator)
     {
         $configuration = $this->packageConfigurationFiles();
+
+        if ($name = $this->argument('file')) {
+            $name = Str::chopEnd($name, '.php');
+
+            if (! $configuration->has($name)) {
+                $this->components->error("Unable to find a published [{$name}] configuration file.");
+
+                return self::FAILURE;
+            }
+
+            $configuration = $configuration->only($name);
+        }
 
         $results = $configuration
             ->map(fn ($paths, $name) => $this->compare($files, $comparator, $name, $paths['source'], $paths['published']))

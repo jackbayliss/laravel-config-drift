@@ -72,6 +72,30 @@ class LaravelConfigOutdatedCommandTest extends TestCase
             ->assertExitCode(Command::SUCCESS);
     }
 
+    public function test_it_can_check_a_single_file()
+    {
+        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis']);
+        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'other'], ['driver' => 'redis'], 'other');
+
+        $this->artisan('config:outdated', ['file' => 'other'])
+            ->expectsOutputToContain('other.prefix')
+            ->doesntExpectOutputToContain('acme.prefix')
+            ->assertExitCode(Command::SUCCESS);
+
+        $this->artisan('config:outdated', ['file' => 'acme.php'])
+            ->expectsOutputToContain('acme.prefix')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_errors_when_checking_an_unpublished_file()
+    {
+        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis']);
+
+        $this->artisan('config:outdated', ['file' => 'missing'])
+            ->expectsOutputToContain('Unable to find a published [missing] configuration file.')
+            ->assertExitCode(Command::FAILURE);
+    }
+
     public function test_it_ignores_published_files_outside_of_the_config_directory()
     {
         $this->publishes([
