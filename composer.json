@@ -1,0 +1,72 @@
+{
+    "name": "jackbayliss/laravel-config-outdated",
+    "description": "An Artisan command to find out when your published config files are out of date.",
+    "keywords": [
+        "jackbayliss",
+        "laravel",
+        "config",
+        "configuration",
+        "laravel-config-outdated"
+    ],
+    "homepage": "https://github.com/jackbayliss/laravel-config-outdated",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jack Bayliss",
+            "email": "jjbdev@proton.me",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "illuminate/console": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "illuminate/support": "^13.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.8",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^11.0.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "JackBayliss\\LaravelConfigOutdated\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JackBayliss\\LaravelConfigOutdated\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JackBayliss\\LaravelConfigOutdated\\LaravelConfigOutdatedServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
