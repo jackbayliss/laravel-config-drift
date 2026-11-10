@@ -1,6 +1,6 @@
 <?php
 
-namespace JackBayliss\LaravelConfigOutdated;
+namespace JackBayliss\LaravelConfigDrift;
 
 use Illuminate\Support\Collection;
 

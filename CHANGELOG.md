@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `laravel-config-outdated` will be documented in this file.
+All notable changes to `laravel-config-drift` will be documented in this file.
 
 ## v1.1 - 2026-11-10
 

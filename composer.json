@@ -1,5 +1,5 @@
 {
-    "name": "jackbayliss/laravel-config-outdated",
+    "name": "jackbayliss/laravel-config-drift",
     "description": "Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.",
     "keywords": [
         "jackbayliss",
@@ -7,13 +7,14 @@
         "config",
         "configuration",
         "outdated",
+        "drift",
         "upgrade",
         "artisan",
         "vendor-publish",
         "config-publish",
-        "laravel-config-outdated"
+        "laravel-config-drift"
     ],
-    "homepage": "https://github.com/jackbayliss/laravel-config-outdated",
+    "homepage": "https://github.com/jackbayliss/laravel-config-drift",
     "license": "MIT",
     "authors": [
         {
@@ -42,12 +43,12 @@
     },
     "autoload": {
         "psr-4": {
-            "JackBayliss\\LaravelConfigOutdated\\": "src/"
+            "JackBayliss\\LaravelConfigDrift\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "JackBayliss\\LaravelConfigOutdated\\Tests\\": "tests/"
+            "JackBayliss\\LaravelConfigDrift\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -68,7 +69,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "JackBayliss\\LaravelConfigOutdated\\LaravelConfigOutdatedServiceProvider"
+                "JackBayliss\\LaravelConfigDrift\\LaravelConfigDriftServiceProvider"
             ]
         }
     },

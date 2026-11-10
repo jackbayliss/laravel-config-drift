@@ -1,12 +1,12 @@
 <?php
 
-namespace JackBayliss\LaravelConfigOutdated\Tests;
+namespace JackBayliss\LaravelConfigDrift\Tests;
 
 use Closure;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use JackBayliss\LaravelConfigOutdated\LaravelConfigOutdatedServiceProvider;
+use JackBayliss\LaravelConfigDrift\LaravelConfigDriftServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -17,7 +17,7 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->root = sys_get_temp_dir().DIRECTORY_SEPARATOR.'config-outdated-'.Str::random(8);
+        $this->root = sys_get_temp_dir().DIRECTORY_SEPARATOR.'config-drift-'.Str::random(8);
 
         (new Filesystem)->ensureDirectoryExists($this->root.DIRECTORY_SEPARATOR.'config');
 
@@ -38,7 +38,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            LaravelConfigOutdatedServiceProvider::class,
+            LaravelConfigDriftServiceProvider::class,
         ];
     }
 

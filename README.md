@@ -1,9 +1,9 @@
-#  Laravel Config Outdated
+# Laravel Config Drift
 Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/jackbayliss/laravel-config-outdated.svg?style=flat-square)](https://packagist.org/packages/jackbayliss/laravel-config-outdated)
-[![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/run-tests.yml?query=branch%3Amain)
-[![GitHub Code Style Action Status](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-outdated/actions/workflows/fix-php-code-style-issues.yml?query=branch%3Amain)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/jackbayliss/laravel-config-drift.svg?style=flat-square)](https://packagist.org/packages/jackbayliss/laravel-config-drift)
+[![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/run-tests.yml?query=branch%3Amain)
+[![GitHub Code Style Action Status](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/fix-php-code-style-issues.yml?query=branch%3Amain)
 
 Once you've published a package's config file, you never hear about new options the package adds or old ones it drops. This compares your published config files against the originals and tells you which keys are missing or no longer used. It never changes your files.
 
@@ -16,7 +16,7 @@ PHP 8.3+ and Laravel 13+.
 You can install the package via composer:
 
 ```bash
-composer require jackbayliss/laravel-config-outdated --dev
+composer require jackbayliss/laravel-config-drift --dev
 ```
 
 ## Usage

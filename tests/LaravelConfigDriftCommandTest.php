@@ -1,12 +1,12 @@
 <?php
 
-namespace JackBayliss\LaravelConfigOutdated\Tests;
+namespace JackBayliss\LaravelConfigDrift\Tests;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Console\ConfigPublishCommand;
 use ReflectionClass;
 
-class LaravelConfigOutdatedCommandTest extends TestCase
+class LaravelConfigDriftCommandTest extends TestCase
 {
     public function test_it_displays_when_no_configuration_files_are_published()
     {

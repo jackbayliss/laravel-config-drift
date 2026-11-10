@@ -1,6 +1,6 @@
 <?php
 
-namespace JackBayliss\LaravelConfigOutdated\Commands;
+namespace JackBayliss\LaravelConfigDrift\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
@@ -8,14 +8,14 @@ use Illuminate\Foundation\Console\ConfigPublishCommand;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use JackBayliss\LaravelConfigOutdated\ConfigurationComparator;
+use JackBayliss\LaravelConfigDrift\ConfigurationComparator;
 use ReflectionClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
 #[AsCommand(name: 'config:outdated')]
-class LaravelConfigOutdatedCommand extends Command
+class LaravelConfigDriftCommand extends Command
 {
     /**
      * The console command signature.

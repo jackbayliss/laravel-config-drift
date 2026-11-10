@@ -1,8 +1,8 @@
 <?php
 
-namespace JackBayliss\LaravelConfigOutdated\Tests;
+namespace JackBayliss\LaravelConfigDrift\Tests;
 
-use JackBayliss\LaravelConfigOutdated\ConfigurationComparator;
+use JackBayliss\LaravelConfigDrift\ConfigurationComparator;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class ConfigurationComparatorTest extends BaseTestCase
