@@ -10,9 +10,7 @@ class LaravelConfigOutdatedCommandTest extends TestCase
 {
     public function test_it_displays_when_no_configuration_files_are_published()
     {
-        $this->publishes([
-            $this->writeConfig('vendor/acme/config/acme.php', ['driver' => 'redis']) => $this->app->configPath('acme.php'),
-        ]);
+        $this->packageConfig('acme', ['driver' => 'redis']);
 
         $this->artisan('config:outdated')
             ->expectsOutputToContain('No published configuration files were found.')
@@ -21,7 +19,8 @@ class LaravelConfigOutdatedCommandTest extends TestCase
 
     public function test_it_displays_when_everything_is_up_to_date()
     {
-        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'sqs']);
+        $this->packageConfig('acme', ['driver' => 'redis']);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
 
         $this->artisan('config:outdated')
             ->expectsOutputToContain('All published configuration files are up to date.')
@@ -30,21 +29,20 @@ class LaravelConfigOutdatedCommandTest extends TestCase
 
     public function test_it_displays_missing_and_unknown_options()
     {
-        $this->publishPackageConfig(
-            ['driver' => 'redis', 'retry' => ['times' => 3, 'backoff' => 5]],
-            ['driver' => 'redis', 'retry' => ['times' => 3], 'legacy' => true],
-        );
+        $this->packageConfig('acme', ['driver' => 'redis', 'new_option' => true]);
+        $this->publishedConfig('acme', ['driver' => 'redis', 'old_option' => true]);
 
         $this->artisan('config:outdated')
             ->expectsOutputToContain('1 missing, 1 unknown')
-            ->expectsOutputToContain('acme.retry.backoff')
-            ->expectsOutputToContain('acme.legacy')
+            ->expectsOutputToContain('acme.new_option')
+            ->expectsOutputToContain('acme.old_option')
             ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_can_fail_when_configuration_is_outdated()
     {
-        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis']);
+        $this->packageConfig('acme', ['driver' => 'redis', 'new_option' => true]);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
 
         $this->artisan('config:outdated')->assertExitCode(Command::SUCCESS);
         $this->artisan('config:outdated', ['--fail' => true])->assertExitCode(Command::FAILURE);
@@ -52,49 +50,57 @@ class LaravelConfigOutdatedCommandTest extends TestCase
 
     public function test_it_does_not_fail_when_configuration_is_up_to_date()
     {
-        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis']);
+        $this->packageConfig('acme', ['driver' => 'redis']);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
 
         $this->artisan('config:outdated', ['--fail' => true])->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_outputs_json()
     {
-        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis', 'legacy' => true]);
-        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis'], 'other');
+        $this->packageConfig('outdated', ['driver' => 'redis', 'new_option' => true]);
+        $this->publishedConfig('outdated', ['driver' => 'redis', 'old_option' => true]);
+
+        $this->packageConfig('current', ['driver' => 'redis']);
+        $this->publishedConfig('current', ['driver' => 'redis']);
 
         $root = str_replace('\\', '/', $this->root);
 
         $this->artisan('config:outdated', ['--json' => true])
             ->expectsOutput(json_encode([[
-                'file' => $root.'/config/acme.php',
-                'source' => $root.'/vendor/acme/config/acme.php',
-                'missing' => ['acme.prefix'],
-                'unknown' => ['acme.legacy'],
+                'file' => $root.'/config/outdated.php',
+                'source' => $root.'/vendor/outdated/config/outdated.php',
+                'missing' => ['outdated.new_option'],
+                'unknown' => ['outdated.old_option'],
             ]]))
             ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_can_check_a_single_file()
     {
-        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis']);
-        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'other'], ['driver' => 'redis'], 'other');
+        $this->packageConfig('acme', ['driver' => 'redis', 'new_option' => true]);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
+
+        $this->packageConfig('other', ['driver' => 'redis', 'new_option' => true]);
+        $this->publishedConfig('other', ['driver' => 'redis']);
 
         $this->artisan('config:outdated', ['file' => 'other'])
-            ->expectsOutputToContain('other.prefix')
-            ->doesntExpectOutputToContain('acme.prefix')
+            ->expectsOutputToContain('other.new_option')
+            ->doesntExpectOutputToContain('acme.new_option')
             ->assertExitCode(Command::SUCCESS);
 
         $this->artisan('config:outdated', ['file' => 'acme.php'])
-            ->expectsOutputToContain('acme.prefix')
+            ->expectsOutputToContain('acme.new_option')
             ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_errors_when_checking_an_unpublished_file()
     {
-        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis']);
+        $this->packageConfig('acme', ['driver' => 'redis']);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
 
-        $this->artisan('config:outdated', ['file' => 'missing'])
-            ->expectsOutputToContain('Unable to find a published [missing] configuration file.')
+        $this->artisan('config:outdated', ['file' => 'horizon'])
+            ->expectsOutputToContain('Unable to find a published [horizon] configuration file.')
             ->assertExitCode(Command::FAILURE);
     }
 
@@ -111,7 +117,7 @@ class LaravelConfigOutdatedCommandTest extends TestCase
 
     public function test_it_checks_published_configuration_directories()
     {
-        $this->writeConfig('vendor/acme/config/acme/queue.php', ['driver' => 'redis', 'prefix' => 'acme']);
+        $this->writeConfig('vendor/acme/config/acme/queue.php', ['driver' => 'redis', 'new_option' => true]);
         $this->writeConfig('config/acme/queue.php', ['driver' => 'redis']);
 
         $this->publishes([
@@ -119,42 +125,47 @@ class LaravelConfigOutdatedCommandTest extends TestCase
         ]);
 
         $this->artisan('config:outdated')
-            ->expectsOutputToContain('acme.queue.prefix')
+            ->expectsOutputToContain('acme.queue.new_option')
             ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_checks_published_framework_configuration_files()
     {
-        $cache = require $this->frameworkConfigPath('cache.php');
+        $cache = $this->frameworkConfig('cache');
 
         unset($cache['prefix']);
-        $cache['legacy'] = true;
+        $cache['old_option'] = true;
 
-        $this->writeConfig('config/cache.php', $cache);
+        $this->publishedConfig('cache', $cache);
 
         $this->artisan('config:outdated', ['--json' => true])
-            ->expectsOutputToContain('"missing":["cache.prefix"],"unknown":["cache.legacy"]')
+            ->expectsOutputToContain('"missing":["cache.prefix"],"unknown":["cache.old_option"]')
             ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_it_does_not_check_the_framework_services_file()
     {
-        $this->writeConfig('config/services.php', ['stripe' => ['key' => 'pk_test']]);
+        $this->publishedConfig('services', ['stripe' => ['key' => 'pk_test']]);
 
         $this->artisan('config:outdated')
             ->expectsOutputToContain('No published configuration files were found.')
             ->assertExitCode(Command::SUCCESS);
     }
 
-    protected function publishPackageConfig(array $original, array $published, $name = 'acme')
+    protected function packageConfig($name, array $config)
     {
         $this->publishes([
-            $this->writeConfig("vendor/{$name}/config/{$name}.php", $original) => $this->writeConfig("config/{$name}.php", $published),
+            $this->writeConfig("vendor/{$name}/config/{$name}.php", $config) => $this->app->configPath("{$name}.php"),
         ]);
     }
 
-    protected function frameworkConfigPath($file)
+    protected function publishedConfig($name, array $config)
     {
-        return dirname((new ReflectionClass(ConfigPublishCommand::class))->getFileName(), 5).'/config/'.$file;
+        $this->writeConfig("config/{$name}.php", $config);
+    }
+
+    protected function frameworkConfig($name)
+    {
+        return require dirname((new ReflectionClass(ConfigPublishCommand::class))->getFileName(), 5)."/config/{$name}.php";
     }
 }
