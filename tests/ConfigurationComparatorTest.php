@@ -85,6 +85,33 @@ class ConfigurationComparatorTest extends BaseTestCase
         $this->assertSame(['missing' => [], 'unknown' => []], $result);
     }
 
+    public function test_only_entries_kept_by_the_user_are_compared_within_collections()
+    {
+        $result = $this->compare(
+            ['connections' => [
+                'mysql' => ['host' => 'localhost', 'port' => 3306, 'timezone' => null],
+                'sqlite' => ['database' => 'database.sqlite'],
+            ]],
+            ['connections' => [
+                'mysql' => ['host' => 'localhost', 'port' => 3306],
+                'reporting' => ['host' => 'reporting.test'],
+            ]],
+        );
+
+        $this->assertSame(['connections.mysql.timezone'], $result['missing']);
+        $this->assertSame([], $result['unknown']);
+    }
+
+    public function test_the_root_of_a_file_is_never_treated_as_a_collection()
+    {
+        $result = $this->compare(
+            ['routes' => ['prefix' => 'api'], 'cache' => ['ttl' => 60]],
+            ['routes' => ['prefix' => 'api']],
+        );
+
+        $this->assertSame(['cache'], $result['missing']);
+    }
+
     public function test_integer_keys_are_ignored()
     {
         $result = $this->compare(

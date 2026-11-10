@@ -2,6 +2,8 @@
 
 namespace JackBayliss\LaravelConfigOutdated;
 
+use Illuminate\Support\Collection;
+
 class ConfigurationComparator
 {
     /**
@@ -14,13 +16,17 @@ class ConfigurationComparator
     {
         $missing = $unknown = [];
 
+        $isCollection = ! is_null($prefix) && $this->isCollection($original);
+
         foreach ($original as $key => $value) {
             if (! is_string($key)) {
                 continue;
             }
 
             if (! array_key_exists($key, $published)) {
-                $missing[] = $this->key($prefix, $key);
+                if (! $isCollection) {
+                    $missing[] = $this->key($prefix, $key);
+                }
 
                 continue;
             }
@@ -33,9 +39,11 @@ class ConfigurationComparator
             }
         }
 
-        foreach (array_keys($published) as $key) {
-            if (is_string($key) && ! array_key_exists($key, $original)) {
-                $unknown[] = $this->key($prefix, $key);
+        if (! $isCollection) {
+            foreach (array_keys($published) as $key) {
+                if (is_string($key) && ! array_key_exists($key, $original)) {
+                    $unknown[] = $this->key($prefix, $key);
+                }
             }
         }
 
@@ -55,6 +63,16 @@ class ConfigurationComparator
             && is_array($published)
             && $original !== []
             && ! array_is_list($original);
+    }
+
+    /**
+     * Determine if the given configuration is a collection of named entries.
+     *
+     * @return bool
+     */
+    protected function isCollection(array $config)
+    {
+        return (new Collection($config))->every(fn ($value) => is_array($value));
     }
 
     /**
