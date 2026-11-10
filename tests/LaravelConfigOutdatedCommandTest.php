@@ -3,6 +3,8 @@
 namespace JackBayliss\LaravelConfigOutdated\Tests;
 
 use Illuminate\Console\Command;
+use Illuminate\Foundation\Console\ConfigPublishCommand;
+use ReflectionClass;
 
 class LaravelConfigOutdatedCommandTest extends TestCase
 {
@@ -121,10 +123,38 @@ class LaravelConfigOutdatedCommandTest extends TestCase
             ->assertExitCode(Command::SUCCESS);
     }
 
+    public function test_it_checks_published_framework_configuration_files()
+    {
+        $cache = require $this->frameworkConfigPath('cache.php');
+
+        unset($cache['prefix']);
+        $cache['legacy'] = true;
+
+        $this->writeConfig('config/cache.php', $cache);
+
+        $this->artisan('config:outdated', ['--json' => true])
+            ->expectsOutputToContain('"missing":["cache.prefix"],"unknown":["cache.legacy"]')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_does_not_check_the_framework_services_file()
+    {
+        $this->writeConfig('config/services.php', ['stripe' => ['key' => 'pk_test']]);
+
+        $this->artisan('config:outdated')
+            ->expectsOutputToContain('No published configuration files were found.')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
     protected function publishPackageConfig(array $original, array $published, $name = 'acme')
     {
         $this->publishes([
             $this->writeConfig("vendor/{$name}/config/{$name}.php", $original) => $this->writeConfig("config/{$name}.php", $published),
         ]);
+    }
+
+    protected function frameworkConfigPath($file)
+    {
+        return dirname((new ReflectionClass(ConfigPublishCommand::class))->getFileName(), 5).'/config/'.$file;
     }
 }

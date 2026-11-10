@@ -4,10 +4,12 @@ namespace JackBayliss\LaravelConfigOutdated\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Console\ConfigPublishCommand;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use JackBayliss\LaravelConfigOutdated\ConfigurationComparator;
+use ReflectionClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Finder\Finder;
 use Throwable;
@@ -33,13 +35,20 @@ class LaravelConfigOutdatedCommand extends Command
     protected $description = 'Determine which published configuration files are out of date';
 
     /**
+     * The framework configuration files that should not be checked.
+     *
+     * @var array
+     */
+    protected $except = ['services'];
+
+    /**
      * Execute the console command.
      *
      * @return int
      */
     public function handle(Filesystem $files, ConfigurationComparator $comparator)
     {
-        $configuration = $this->packageConfigurationFiles();
+        $configuration = $this->configurationFiles();
 
         if ($name = $this->argument('file')) {
             $name = Str::chopEnd($name, '.php');
@@ -109,6 +118,46 @@ class LaravelConfigOutdatedCommand extends Command
             'missing' => array_map(fn ($key) => "{$name}.{$key}", $result['missing']),
             'unknown' => array_map(fn ($key) => "{$name}.{$key}", $result['unknown']),
         ];
+    }
+
+    /**
+     * Get all of the published configuration files.
+     *
+     * @return Collection
+     */
+    protected function configurationFiles()
+    {
+        return $this->frameworkConfigurationFiles()
+            ->merge($this->packageConfigurationFiles())
+            ->sortKeys();
+    }
+
+    /**
+     * Get the framework configuration files that have been published.
+     *
+     * @return Collection
+     */
+    protected function frameworkConfigurationFiles()
+    {
+        $framework = dirname((new ReflectionClass(ConfigPublishCommand::class))->getFileName(), 5);
+
+        $shouldMerge = $this->laravel->shouldMergeFrameworkConfiguration();
+
+        return (new Collection(Finder::create()->files()->name('*.php')->in($framework.'/config')))
+            ->mapWithKeys(function ($file) use ($framework, $shouldMerge) {
+                $name = $file->getBasename('.php');
+
+                $source = $shouldMerge && is_file($stub = $framework.'/config-stubs/'.$name.'.php')
+                    ? $stub
+                    : $file->getPathname();
+
+                return [$name => [
+                    'source' => $source,
+                    'published' => $this->laravel->configPath($name.'.php'),
+                ]];
+            })
+            ->except($this->except)
+            ->filter(fn ($paths) => is_file($paths['published']));
     }
 
     /**
