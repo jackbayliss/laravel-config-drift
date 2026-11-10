@@ -19,7 +19,8 @@ class LaravelConfigOutdatedCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'config:outdated';
+    protected $signature = 'config:outdated
+                            {--fail : Exit with a non-zero code if any configuration file is outdated}';
 
     /**
      * The console command description.
@@ -53,7 +54,9 @@ class LaravelConfigOutdatedCommand extends Command
             $this->displayOutdated($outdated);
         }
 
-        return self::SUCCESS;
+        return $this->option('fail') && $outdated->isNotEmpty()
+            ? self::FAILURE
+            : self::SUCCESS;
     }
 
     /**

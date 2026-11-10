@@ -40,6 +40,21 @@ class LaravelConfigOutdatedCommandTest extends TestCase
             ->assertExitCode(Command::SUCCESS);
     }
 
+    public function test_it_can_fail_when_configuration_is_outdated()
+    {
+        $this->publishPackageConfig(['driver' => 'redis', 'prefix' => 'acme'], ['driver' => 'redis']);
+
+        $this->artisan('config:outdated')->assertExitCode(Command::SUCCESS);
+        $this->artisan('config:outdated', ['--fail' => true])->assertExitCode(Command::FAILURE);
+    }
+
+    public function test_it_does_not_fail_when_configuration_is_up_to_date()
+    {
+        $this->publishPackageConfig(['driver' => 'redis'], ['driver' => 'redis']);
+
+        $this->artisan('config:outdated', ['--fail' => true])->assertExitCode(Command::SUCCESS);
+    }
+
     public function test_it_ignores_published_files_outside_of_the_config_directory()
     {
         $this->publishes([
