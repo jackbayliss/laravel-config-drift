@@ -1,6 +1,6 @@
 {
     "name": "jackbayliss/laravel-config-drift",
-    "description": "Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.",
+    "description": "Find new and extra options in your published Laravel config files after upgrading packages or the framework.",
     "keywords": [
         "jackbayliss",
         "laravel",
