@@ -45,26 +45,26 @@ jobs:
       - name: Drift the application config file
         working-directory: app
         run: |
-          if ! grep -q "'timezone' =>" config/app.php; then
-            echo "::error::The 'timezone' key is no longer in the skeleton's config/app.php, pick another key to remove."
+          if ! grep -q "'foreign_key_constraints' =>" config/database.php; then
+            echo "::error::The 'foreign_key_constraints' key is no longer in the skeleton's config/database.php, pick another key to remove."
             exit 1
           fi
 
-          sed -i "/'timezone' =>/d" config/app.php
-          sed -i "s/^return \[/return [\n    'drift_check' => true,/" config/app.php
+          sed -i "/'foreign_key_constraints' =>/d" config/database.php
+          sed -i "s/^return \[/return [\n    'drift_check' => true,/" config/database.php
 
       - name: Detect the drifted keys
         working-directory: app
         run: |
-          if php artisan config:outdated app --fail; then
+          if php artisan config:outdated database --fail; then
             echo "::error::config:outdated did not fail for a drifted config file."
             exit 1
           fi
 
-          php artisan config:outdated app --json | tee output.json
+          php artisan config:outdated database --json | tee output.json
 
-          jq -e '.[0].missing | index("app.timezone")' output.json > /dev/null \
-            || { echo "::error::app.timezone was not reported as missing."; exit 1; }
+          jq -e '.[0].missing | index("database.connections.sqlite.foreign_key_constraints")' output.json > /dev/null \
+            || { echo "::error::database.connections.sqlite.foreign_key_constraints was not reported as missing."; exit 1; }
 
-          jq -e '.[0].unknown | index("app.drift_check")' output.json > /dev/null \
-            || { echo "::error::app.drift_check was not reported as unknown."; exit 1; }
+          jq -e '.[0].unknown | index("database.drift_check")' output.json > /dev/null \
+            || { echo "::error::database.drift_check was not reported as unknown."; exit 1; }

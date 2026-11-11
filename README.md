@@ -21,6 +21,8 @@ composer require jackbayliss/laravel-config-drift --dev
 
 ## Usage
 
+Check all of your published config files:
+
 ```bash
 php artisan config:outdated
 ```
@@ -35,17 +37,27 @@ php artisan config:outdated
   mail.mailers.smtp.encryption .................................. unknown
 ```
 
-This checks package config files published with `vendor:publish`, as well as the framework config files published with `config:publish`.
+- `missing`: the original config file has this key, yours doesn't.
+- `unknown`: your config file has this key, the original doesn't.
 
-A `missing` key is in the original config file but not yours. An `unknown` key is in yours but not the original.
+Check a single config file by passing its name:
 
-| Option | Description |
-| --- | --- |
-| `file` | Only check the given config file, e.g. `horizon`. |
-| `--json` | Output the outdated config files as JSON. |
-| `--fail` | Exit with a non-zero code if any config file is outdated, handy for CI. |
+```bash
+php artisan config:outdated database
+php artisan config:outdated horizon
+```
 
-Only keys are compared, not values. Things like `database.connections` and `filesystems.disks` are yours to add to or remove from, so deleting a connection won't show up, but a new option missing from a connection you kept will.
+Fail your CI build when a config file is outdated:
+
+```bash
+php artisan config:outdated --fail
+```
+
+Output the results as JSON:
+
+```bash
+php artisan config:outdated --json
+```
 
 ## Testing
 

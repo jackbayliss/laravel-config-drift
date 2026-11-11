@@ -122,10 +122,7 @@ class LaravelConfigDriftCommand extends Command
     }
 
     /**
-     * Remove the missing options the framework merges into the configuration at runtime.
-     *
-     * The framework only merges the top level of its own configuration files, so a
-     * missing option nested within an entry the user has kept is still missing.
+     * Remove the missing options the framework merges in at runtime.
      *
      * @return array
      */
