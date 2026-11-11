@@ -133,13 +133,51 @@ class LaravelConfigDriftCommandTest extends TestCase
     {
         $cache = $this->frameworkConfig('cache');
 
-        unset($cache['prefix']);
+        unset($cache['stores']['database']['lock_table']);
         $cache['old_option'] = true;
 
         $this->publishedConfig('cache', $cache);
 
         $this->artisan('config:outdated', ['--json' => true])
-            ->expectsOutputToContain('"missing":["cache.prefix"],"unknown":["cache.old_option"]')
+            ->expectsOutputToContain('"missing":["cache.stores.database.lock_table"],"unknown":["cache.old_option"]')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_ignores_missing_options_the_framework_merges_at_runtime()
+    {
+        $cache = $this->frameworkConfig('cache');
+
+        unset($cache['prefix']);
+
+        $this->publishedConfig('cache', $cache);
+
+        $this->artisan('config:outdated')
+            ->expectsOutputToContain('All published configuration files are up to date.')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_reports_missing_framework_options_when_the_framework_configuration_is_not_merged()
+    {
+        $this->app->dontMergeFrameworkConfiguration();
+
+        $cache = $this->frameworkConfig('cache');
+
+        unset($cache['prefix']);
+
+        $this->publishedConfig('cache', $cache);
+
+        $this->artisan('config:outdated', ['--json' => true])
+            ->expectsOutputToContain('"missing":["cache.prefix"]')
+            ->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_reports_missing_package_options_at_the_top_level()
+    {
+        $this->packageConfig('acme', ['driver' => 'redis', 'prefix' => 'acme']);
+        $this->publishedConfig('acme', ['driver' => 'redis']);
+
+        $this->artisan('config:outdated', ['--json' => true])
+            ->expectsOutputToContain('"missing":["acme.prefix"]')
             ->assertExitCode(Command::SUCCESS);
     }
 

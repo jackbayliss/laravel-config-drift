@@ -63,7 +63,7 @@ class LaravelConfigDriftCommand extends Command
         }
 
         $results = $configuration
-            ->map(fn ($paths, $name) => $this->compare($files, $comparator, $name, $paths['source'], $paths['published']))
+            ->map(fn ($paths, $name) => $this->compare($files, $comparator, $name, $paths))
             ->filter();
 
         $outdated = $results
@@ -89,15 +89,14 @@ class LaravelConfigDriftCommand extends Command
      * Compare the given published configuration file against its source.
      *
      * @param  string  $name
-     * @param  string  $source
-     * @param  string  $published
      * @return array|null
      */
-    protected function compare(Filesystem $files, ConfigurationComparator $comparator, $name, $source, $published)
+    protected function compare(Filesystem $files, ConfigurationComparator $comparator, $name, array $paths)
     {
         try {
-            $original = $files->getRequire($source);
-            $current = $files->getRequire($published);
+            $original = $files->getRequire($paths['source']);
+            $current = $files->getRequire($paths['published']);
+            $base = $paths['base'] ? $files->getRequire($paths['base']) : [];
         } catch (Throwable $e) {
             if (! $this->option('json')) {
                 $this->components->warn("Unable to load the [{$name}] configuration file: {$e->getMessage()}");
@@ -112,12 +111,29 @@ class LaravelConfigDriftCommand extends Command
 
         $result = $comparator->compare($original, $current);
 
+        $missing = $this->withoutMergedOptions($result['missing'], is_array($base) ? $base : []);
+
         return [
-            'file' => $this->relativePath($published),
-            'source' => $this->relativePath($source),
-            'missing' => array_map(fn ($key) => "{$name}.{$key}", $result['missing']),
+            'file' => $this->relativePath($paths['published']),
+            'source' => $this->relativePath($paths['source']),
+            'missing' => array_map(fn ($key) => "{$name}.{$key}", $missing),
             'unknown' => array_map(fn ($key) => "{$name}.{$key}", $result['unknown']),
         ];
+    }
+
+    /**
+     * Remove the missing options the framework merges into the configuration at runtime.
+     *
+     * The framework only merges the top level of its own configuration files, so a
+     * missing option nested within an entry the user has kept is still missing.
+     *
+     * @return array
+     */
+    protected function withoutMergedOptions(array $missing, array $base)
+    {
+        return array_values(array_filter(
+            $missing, fn ($key) => ! array_key_exists($key, $base)
+        ));
     }
 
     /**
@@ -154,6 +170,7 @@ class LaravelConfigDriftCommand extends Command
                 return [$name => [
                     'source' => $source,
                     'published' => $this->laravel->configPath($name.'.php'),
+                    'base' => $shouldMerge ? $file->getPathname() : null,
                 ]];
             })
             ->except($this->except)
@@ -183,6 +200,7 @@ class LaravelConfigDriftCommand extends Command
                 $this->configurationKey($configPath, realpath($to)) => [
                     'source' => $from,
                     'published' => $to,
+                    'base' => null,
                 ],
             ]);
     }
