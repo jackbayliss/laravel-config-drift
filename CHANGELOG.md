@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-config-drift` will be documented in this file.
 
+## v1.3 - 2026-11-11
+
+Improves the output
+
 ## v1.2 - 2026-11-10
 
 Renames to drift
