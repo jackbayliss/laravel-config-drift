@@ -1,11 +1,11 @@
 # Laravel Config Drift
-Detect missing and outdated keys in your published Laravel config files after upgrading packages or the framework.
+Find new and extra options in your published Laravel config files after upgrading packages or the framework.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jackbayliss/laravel-config-drift.svg?style=flat-square)](https://packagist.org/packages/jackbayliss/laravel-config-drift)
 [![GitHub Tests Action Status](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/run-tests.yml?query=branch%3Amain)
 [![GitHub Code Style Action Status](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/jackbayliss/laravel-config-drift/actions/workflows/fix-php-code-style-issues.yml?query=branch%3Amain)
 
-Once you've published a package's config file, you never hear about new options the package adds or old ones it drops. This compares your published config files against the originals and tells you which keys are missing or no longer used. It never changes your files.
+Once you've published a package's config file, you never hear about new options the package adds or old ones it drops. This compares your published config files against the originals and tells you which options are new and which are extra. It never changes your files.
 
 ## Requirements
 
@@ -28,17 +28,17 @@ php artisan config:outdated
 ```
 
 ```
-  config/database.php ......................................... 2 missing
-  database.connections.sqlite.busy_timeout ...................... missing
-  database.connections.sqlite.journal_mode ...................... missing
+  config/database.php ............................................. 2 new
+  database.connections.sqlite.busy_timeout .......................... new
+  database.connections.sqlite.journal_mode .......................... new
 
-  config/mail.php ................................. 1 missing, 1 unknown
-  mail.mailers.smtp.scheme ...................................... missing
-  mail.mailers.smtp.encryption .................................. unknown
+  config/mail.php ......................................... 1 new, 1 extra
+  mail.mailers.smtp.scheme .......................................... new
+  mail.mailers.smtp.encryption ...................................... extra
 ```
 
-- `missing`: the original config file has this key, yours doesn't.
-- `unknown`: your config file has this key, the original doesn't.
+- `new`: an option in the original config file that yours doesn't have.
+- `extra`: an option in your config file that the original doesn't have.
 
 Check a single config file by passing its name:
 

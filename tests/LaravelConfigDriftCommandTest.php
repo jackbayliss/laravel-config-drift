@@ -33,7 +33,7 @@ class LaravelConfigDriftCommandTest extends TestCase
         $this->publishedConfig('acme', ['driver' => 'redis', 'old_option' => true]);
 
         $this->artisan('config:outdated')
-            ->expectsOutputToContain('1 missing, 1 unknown')
+            ->expectsOutputToContain('1 new, 1 extra')
             ->expectsOutputToContain('acme.new_option')
             ->expectsOutputToContain('acme.old_option')
             ->assertExitCode(Command::SUCCESS);

@@ -264,11 +264,11 @@ class LaravelConfigDriftCommand extends Command
             );
 
             foreach ($result['missing'] as $key) {
-                $this->components->twoColumnDetail($key, '<fg=yellow>missing</>');
+                $this->components->twoColumnDetail($key, '<fg=yellow>new</>');
             }
 
             foreach ($result['unknown'] as $key) {
-                $this->components->twoColumnDetail($key, '<fg=gray>unknown</>');
+                $this->components->twoColumnDetail($key, '<fg=gray>extra</>');
             }
 
             $this->newLine();
@@ -282,7 +282,7 @@ class LaravelConfigDriftCommand extends Command
      */
     protected function summary(array $result)
     {
-        return (new Collection(['missing' => count($result['missing']), 'unknown' => count($result['unknown'])]))
+        return (new Collection(['new' => count($result['missing']), 'extra' => count($result['unknown'])]))
             ->filter()
             ->map(fn ($count, $type) => "{$count} {$type}")
             ->implode(', ');
