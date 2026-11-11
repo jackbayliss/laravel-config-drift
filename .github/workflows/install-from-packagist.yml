@@ -36,7 +36,7 @@ jobs:
 
       - name: List installed versions
         working-directory: app
-        run: composer show laravel/framework jackbayliss/laravel-config-drift
+        run: composer show -D
 
       - name: Run the command
         working-directory: app
